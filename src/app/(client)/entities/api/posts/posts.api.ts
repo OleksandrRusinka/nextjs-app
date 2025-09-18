@@ -33,4 +33,34 @@ export const postsApi = {
 
     return Promise.resolve(newPost)
   },
+
+  updatePost: async (data: { id: number; title: string; body: string }): Promise<Post> => {
+    if (data.id > 0) {
+      const response = await fetch(`${API_BASE_URL}/posts/${data.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+        body: JSON.stringify({
+          id: data.id,
+          title: data.title,
+          body: data.body,
+          userId: 1,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Failed to update post ${data.id}: ${response.status}`)
+      }
+
+      return response.json()
+    }
+
+    return Promise.resolve({
+      id: data.id,
+      title: data.title,
+      body: data.body,
+      userId: 1,
+    })
+  },
 }

@@ -17,7 +17,7 @@ interface CreatePostModalProps {
   onOpenChange: () => void
 }
 
-  // component
+// component
 const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onOpenChange }) => {
   const createPostMutation = useCreatePost()
 
@@ -26,7 +26,13 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onOpenChange }) => 
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<CreatePostFormData>()
+  } = useForm<CreatePostFormData>({
+    mode: 'onChange',
+    defaultValues: {
+      title: '',
+      body: '',
+    },
+  })
 
   useEffect(() => {
     if (!isOpen) {
@@ -74,41 +80,45 @@ const CreatePostModal: FC<CreatePostModalProps> = ({ isOpen, onOpenChange }) => 
             <ModalHeader className='text-2xl font-bold text-gray-900'>Create New Post</ModalHeader>
             <ModalBody>
               <div className='space-y-6'>
-                <Input
-                  {...register('title', {
-                    required: 'Title is required',
-                    minLength: { value: 5, message: 'Title must be at least 5 characters' },
-                  })}
-                  placeholder='Enter your post title...'
-                  variant='bordered'
-                  size='lg'
-                  isInvalid={!!errors.title}
-                  errorMessage={errors.title?.message}
-                  classNames={{
-                    inputWrapper:
-                      'border-2 border-gray-300/70 hover:border-blue-400 focus-within:border-blue-500 bg-gray-50/50 rounded-lg px-4 py-3',
-                    input: 'text-gray-900 text-base placeholder-gray-500 font-medium outline-none',
-                    label: 'hidden',
-                  }}
-                />
-                <Textarea
-                  {...register('body', {
-                    required: 'Content is required',
-                    minLength: { value: 20, message: 'Content must be at least 20 characters' },
-                  })}
-                  placeholder='Write your post content here...'
-                  variant='bordered'
-                  size='lg'
-                  minRows={6}
-                  isInvalid={!!errors.body}
-                  errorMessage={errors.body?.message}
-                  classNames={{
-                    inputWrapper:
-                      'border-2 border-gray-300/70 hover:border-blue-400 focus-within:border-blue-500 bg-gray-50/50 rounded-lg px-4 py-3 w-full',
-                    input: 'text-gray-900 text-base placeholder-gray-500 font-medium resize-none leading-relaxed outline-none',
-                    label: 'hidden',
-                  }}
-                />
+                <div className='space-y-2'>
+                  <Input
+                    {...register('title', {
+                      required: 'Title is required',
+                      minLength: { value: 5, message: 'Title must be at least 5 characters' },
+                    })}
+                    placeholder='Enter your post title...'
+                    variant='bordered'
+                    size='lg'
+                    isInvalid={!!errors.title}
+                    classNames={{
+                      inputWrapper:
+                        'border-2 border-gray-300/70 hover:border-blue-400 focus-within:border-blue-500 bg-gray-50/50 rounded-lg px-4 py-3 data-[invalid=true]:border-red-400',
+                      input: 'text-gray-900 text-base placeholder-gray-500 font-medium outline-none',
+                    }}
+                  />
+                  {errors.title && <p className='px-1 text-sm font-medium text-red-500'>{errors.title.message}</p>}
+                </div>
+
+                <div className='space-y-2'>
+                  <Textarea
+                    {...register('body', {
+                      required: 'Content is required',
+                      minLength: { value: 20, message: 'Content must be at least 20 characters' },
+                    })}
+                    placeholder='Write your post content here...'
+                    variant='bordered'
+                    size='lg'
+                    minRows={6}
+                    isInvalid={!!errors.body}
+                    classNames={{
+                      inputWrapper:
+                        'border-2 border-gray-300/70 hover:border-blue-400 focus-within:border-blue-500 bg-gray-50/50 rounded-lg px-4 py-3 w-full data-[invalid=true]:border-red-400',
+                      input:
+                        'text-gray-900 text-base placeholder-gray-500 font-medium resize-none leading-relaxed outline-none',
+                    }}
+                  />
+                  {errors.body && <p className='px-1 text-sm font-medium text-red-500'>{errors.body.message}</p>}
+                </div>
               </div>
             </ModalBody>
 
