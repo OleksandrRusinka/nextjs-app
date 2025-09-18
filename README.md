@@ -1,10 +1,9 @@
-
+NextJS APP POST
 
 ## ✨ Features
 - **📚 Post Management**: View, create, edit, and delete blog posts
 - **💾 Save Posts**: Save your favorite posts locally
 - **🔄 Real-time Updates**: Automatic revalidation every 30 seconds
-- **📱 Responsive Design**: Works perfectly on all devices
 - **⚡ Fast Performance**: Server-side rendering with caching
 
 ## 🛠️ Tech Stack
@@ -17,26 +16,14 @@
 - **Styling**: Tailwind CSS
 - **API**: JSONPlaceholder (fake JSON API)
 
-## 🏗️ Architecture
 
-The project follows Feature-Sliced Design (FSD) architecture:
-
-```
-src/app/(client)/
-├── (app)/          # Next.js app router pages
-├── entities/       # Business entities (models, API)
-├── features/       # Reusable features (components)
-├── modules/        # Business logic modules
-├── shared/         # Shared utilities (UI, store)
-└── widgets/        # Self-sufficient UI components
-```
 
 ## 🚀 Getting Started
 
 1. **Clone the repository**
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/OleksandrRusinka/nextjs-app.git
 cd nextjs-app
 ```
 
@@ -59,7 +46,6 @@ npm run dev
 
 - `npm run dev` - Start development server with Turbopack
 - `npm run build` - Build for production with Turbopack
-- `npm start` - Start production server
 
 ## 🔧 Key Features Explained
 
@@ -85,7 +71,7 @@ Uses [JSONPlaceholder](https://jsonplaceholder.typicode.com/) for:
 
 - Fetching posts (`GET /posts`)
 - Individual post details (`GET /posts/:id`)
-- User-created posts are stored locally with negative IDs
+- User-created posts are stored locally
 
 ## 🎨 UI Components
 
@@ -102,4 +88,4 @@ Built with HeroUI components:
 - **Post Detail** (`/posts/[slug]`) - Individual post view
 - **Saved Posts** (`/saved`) - User's saved posts
 
-Built with ❤️ using Next.js
+

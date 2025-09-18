@@ -1,5 +1,0 @@
-export * from './entities'
-export * from './features'
-export * from './modules'
-export * from './shared'
-export * from './widgets'

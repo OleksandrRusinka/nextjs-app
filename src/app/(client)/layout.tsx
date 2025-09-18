@@ -4,7 +4,7 @@ import '@/config/styles/globals.css'
 import { LayoutModule } from '@/modules/layout'
 
 import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query'
-import Providers from './providers'
+import Providers from './(app)/providers'
 
 export const metadata: Metadata = {
   title: {
