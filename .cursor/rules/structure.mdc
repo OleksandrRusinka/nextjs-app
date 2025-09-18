@@ -1,0 +1,138 @@
+---
+alwaysApply: true
+description: Project structure
+---
+
+## Overview
+
+* **Layers** - standardized levels of abstraction
+* **Slices** - feature-based divisions within layers
+* **Segments** - technical purpose divisions within slices
+
+```
+┌─────────────┬────────────┬────────────┐
+│   Layers    │   Slices   │  Segments  │
+├─────────────┼────────────┼────────────┤
+│    (app)    │      -     │      +     │
+│   modules   │      +     │      +     │
+│   widgets   │      +     │      +     │
+│   features  │      +     │      +     │
+│   entities  │      +     │      +     │
+│   shared    │      -     │      +     │
+└─────────────┴────────────┴────────────┘
+```
+
+
+## Complete Project Structure
+
+```
+src/app/
+├── (app)/                                          # Layer - Project foundation: Routing, entry point
+│   ├── [locale]/                                   # Segment (Optional) - If localization is needed
+│   │   ├── page.tsx
+│   │   ├── layout.tsx
+│   │   ├── not-found.tsx
+│   │   ├── page-name/                              
+│   │   │   └── page.tsx
+│   │   └── [...not_found]/page.tsx
+│   └── api/                                        # Segment (Optional)
+│       ├── endpoint-name/
+│       │   └── route.ts
+│       └── ...
+├── modules/                                        # Layer - Main business logic 
+│   ├── module-name/                                # Slice
+│   │   ├── elements/                               # Segment (Optional) - Custom elements
+│   │   │   ├── element-name/
+│   │   │   │   ├── element-name.component.tsx
+│   │   │   │   └── index.ts
+│   │   │   ├── ...
+│   │   │   └── index.ts
+│   │   ├── module-name.module.tsx
+│   │   ├── module-name.service.ts                  # Segment (Optional)
+│   │   ├── module-name.store.ts                    # Segment (Optional) 
+│   │   ├── module-name.constant.ts                 # Segment (Optional)
+│   │   ├── module-name.interface.ts                # Segment (Optional)
+│   │   └── index.ts
+│   └── ...
+├── widgets/                                        # Layer - Self-sufficient parts of functionality or interface
+│   ├── widget-name/                                # Slice
+│   │   ├── elements/                               # Segment (Optional) - Custom elements    
+│   │   │   ├── element-name/
+│   │   │   │   ├── element-name.component.tsx
+│   │   │   │   └── index.ts  
+│   │   │   ├── ... 
+│   │   │   └── index.ts                            
+│   │   ├── widget-name.component.tsx
+│   │   ├── module-name.service.ts                  # Segment (Optional)
+│   │   ├── module-name.store.ts                    # Segment (Optional) 
+│   │   ├── module-name.constant.ts                 # Segment (Optional)
+│   │   ├── module-name.interface.ts                # Segment (Optional)
+│   │   └── index.ts
+│   └── ...
+├── features/                                       # Layer - Reusable implementations 
+│   ├── feature-name/                               # Slice
+│   │   ├── feature-name.component.tsx
+│   │   ├── module-name.service.ts                  # Segment (Optional)
+│   │   ├── module-name.constant.ts                 # Segment (Optional)
+│   │   ├── module-name.interface.ts                # Segment (Optional)
+│   │   └── index.ts
+│   └── ...
+├── entities/                                       # Layer - Business entities 
+│   ├── api/                                        # Slice
+│   │   ├── api-name/                               # Segment
+│   │   │   ├── api-name.api.ts
+│   │   │   ├── api-name.query.ts
+│   │   │   ├── api-name.mutation.ts
+│   │   │   └── index.ts
+│   │   ├── ...
+│   │   └── index.ts
+│   └── models/                                     # Slice
+│       ├── model-name.ts
+│       ├── ...
+│       └── index.ts
+└── shared/                                         # Layer - Reusable code
+    ├── ui/                                         # Segment
+    │   ├── ui-name/                                
+    │   │   ├── ui-name.component.tsx
+    │   │   └── index.ts  
+    │   ├── ...
+    │   └── index.ts
+    ├── hooks/                                      # Segment
+    │   ├── hook-name.hook.tsx
+    │   ├── ...
+    │   └── index.ts
+    ├── store/                                      # Segment
+    │   ├── store-name.store.ts
+    │   ├── ...
+    │   └── index.ts
+    ├── interfaces/                                 # Segment
+    │   ├── interface-name.interface.ts
+    │   ├── ...
+    │   └── index.ts
+    └── assets/                                     # Segment
+        ├── icon/
+        │   ├── logo.svg
+        │   ├── ...
+        │   └── index.ts
+        ├── ...
+        └── index.ts
+```
+
+
+## Import Rules
+
+Layers can only import from lower layers:
+
+```typescript
+// ✅ Allowed imports
+// (app) -> modules, widgets, features, entities, shared
+// modules -> widgets, features, entities, shared
+// widgets -> features, entities, shared
+// features -> entities, shared
+// entities -> shared
+// shared -> (no other layers)
+
+// ❌ Forbidden imports
+// shared -> entities, features, widgets, modules, (app)
+// entities -> features, widgets, modules, (app)
+```
