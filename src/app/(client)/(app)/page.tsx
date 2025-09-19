@@ -1,21 +1,12 @@
+import { postsApi } from '@/entities/api/posts'
+import type { Post } from '@/entities/models'
 import { HomeModule } from '@/modules/home'
 
-export const revalidate = 30
-
 export default async function HomePage() {
-  let initialPosts = []
+  let initialPosts: Post[] = []
 
   try {
-    const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
-      next: { revalidate: 30 },
-    })
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch posts')
-    }
-
-    const posts = await response.json()
-    initialPosts = posts
+    initialPosts = await postsApi.fetchPosts()
   } catch (error) {
     console.error('Failed to fetch initial posts:', error)
   }

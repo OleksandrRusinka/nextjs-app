@@ -3,8 +3,11 @@ import type { CreatePostDto, Post } from '@/entities/models'
 const API_BASE_URL = 'https://jsonplaceholder.typicode.com'
 
 export const postsApi = {
-  fetchPosts: async (): Promise<Post[]> => {
-    const response = await fetch(`${API_BASE_URL}/posts`)
+  fetchPosts: async (options?: RequestInit): Promise<Post[]> => {
+    const response = await fetch(`${API_BASE_URL}/posts`, {
+      next: { revalidate: 30 },
+      ...options,
+    })
 
     if (!response.ok) {
       throw new Error(`Failed to fetch posts: ${response.status}`)
@@ -14,8 +17,11 @@ export const postsApi = {
     return posts.map((post: Post) => ({ ...post, source: 'fakejson' as const }))
   },
 
-  fetchPostById: async (id: string | number): Promise<Post> => {
-    const response = await fetch(`${API_BASE_URL}/posts/${id}`)
+  fetchPostById: async (id: string | number, options?: RequestInit): Promise<Post> => {
+    const response = await fetch(`${API_BASE_URL}/posts/${id}`, {
+      next: { revalidate: 30 },
+      ...options,
+    })
 
     if (!response.ok) {
       throw new Error(`Failed to fetch post ${id}: ${response.status}`)

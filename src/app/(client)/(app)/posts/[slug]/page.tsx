@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
+import { postsApi } from '@/entities/api/posts'
 import type { Post } from '@/entities/models'
 import { PostDetailModule } from '@/modules/post-detail'
 
@@ -8,13 +9,7 @@ export const revalidate = 30
 
 export async function generateStaticParams() {
   try {
-    const response = await fetch('https://jsonplaceholder.typicode.com/posts')
-
-    if (!response.ok) {
-      return []
-    }
-
-    const posts = await response.json()
+    const posts = await postsApi.fetchPosts()
 
     return posts.slice(0, 20).map((post: Post) => ({
       slug: String(post.id),
@@ -53,16 +48,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   }
 
   try {
-    const response = await fetch(`https://jsonplaceholder.typicode.com/posts/${slug}`)
-
-    if (!response.ok) {
-      return {
-        title: 'Post Not Found',
-        description: 'The requested post could not be found.',
-      }
-    }
-
-    const post: Post = await response.json()
+    const post: Post = await postsApi.fetchPostById(slug)
 
     return {
       title: `${post.title} | Blog`,
