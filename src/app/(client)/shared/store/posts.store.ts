@@ -9,7 +9,6 @@ interface PostsState {
   updateSavedPost: (id: number, updates: Partial<Post>) => void
   removeSavedPost: (id: number) => void
   getSavedPost: (id: number) => Post | undefined
-  clearSavedPosts: () => void
 }
 
 export const usePostsStore = create<PostsState>()(
@@ -34,8 +33,6 @@ export const usePostsStore = create<PostsState>()(
           })),
 
         getSavedPost: (id) => get().savedPosts.find((post) => post.id === id),
-
-        clearSavedPosts: () => set({ savedPosts: [] }),
       }),
       {
         name: 'posts-storage',

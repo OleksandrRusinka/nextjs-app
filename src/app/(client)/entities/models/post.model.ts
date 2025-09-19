@@ -3,6 +3,7 @@ export interface Post {
   userId: number
   title: string
   body: string
+  source?: 'fakejson' | 'user'
 }
 
 export interface CreatePostDto {

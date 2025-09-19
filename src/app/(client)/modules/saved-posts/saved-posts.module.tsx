@@ -15,7 +15,8 @@ interface SavedPostsModuleProps {}
 
 // component
 const SavedPostsModule: FC<SavedPostsModuleProps> = () => {
-const savedPosts = usePostsStore((state) => state.savedPosts)
+  const savedPosts = usePostsStore((state) => state.savedPosts)
+  const removeSavedPost = usePostsStore((state) => state.removeSavedPost)
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const [editingPost, setEditingPost] = useState<Post | null>(null)
 
@@ -26,10 +27,21 @@ const savedPosts = usePostsStore((state) => state.savedPosts)
     onOpen()
   }
 
-  const handleDelete = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this post?')) {
+  const handleDelete = async (post: Post) => {
+    const isUserPost = post.source === 'user' || post.id < 0
+    const isFakeJsonPost = post.source === 'fakejson' || post.id > 0
+
+    const confirmMessage = isFakeJsonPost
+      ? 'Are you sure you want to remove this post from saved posts?'
+      : 'Are you sure you want to delete this post?'
+
+    if (window.confirm(confirmMessage)) {
       try {
-        await deletePostMutation.mutateAsync(id)
+        if (isFakeJsonPost) {
+          removeSavedPost(post.id)
+        } else {
+          await deletePostMutation.mutateAsync(post.id)
+        }
       } catch (error) {
         console.error('Failed to delete post:', error)
       }
@@ -47,9 +59,7 @@ const savedPosts = usePostsStore((state) => state.savedPosts)
       <div className='space-y-8'>
         <div className='space-y-4 text-center'>
           <h1 className='text-4xl font-bold text-gray-900'>Saved Posts</h1>
-          <p className='mx-auto max-w-2xl text-lg text-gray-600'>
-            Your personally created posts that you can edit and delete
-          </p>
+          <p className='mx-auto max-w-2xl text-lg text-gray-600'>Your saved posts - create, edit and delete</p>
         </div>
 
         {savedPosts.length === 0 ? (
@@ -65,61 +75,88 @@ const savedPosts = usePostsStore((state) => state.savedPosts)
           </div>
         ) : (
           <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-3'>
-            {savedPosts.map((post: Post, index: number) => (
-              <Card
-                key={`saved-post-${post.id}-${index}`}
-                className='flex h-full flex-col border-2 border-green-100 bg-green-50/30 p-2'
-                shadow='none'
-              >
-                <CardHeader className='pb-2'>
-                  <div className='flex w-full items-start justify-between gap-3'>
-                    <h3 className='line-clamp-2 flex-1 text-lg font-semibold text-gray-900'>{post.title}</h3>
-                    <span className='shrink-0 rounded-full bg-green-100 px-2 py-1 text-xs text-green-700'>
-                      Your Post
-                    </span>
-                  </div>
-                </CardHeader>
+            {savedPosts.map((post: Post, index: number) => {
+              const isUserPost = post.source === 'user' || post.id < 0
+              const isFakeJsonPost = post.source === 'fakejson' || post.id > 0
 
-                <CardBody className='flex flex-1 flex-col pt-0'>
-                  <p className='mb-4 line-clamp-3 text-sm leading-relaxed text-gray-600'>{post.body}</p>
-                  <div className='mt-auto space-y-2 border-t border-gray-100 pt-2'>
-                    <div className='flex gap-2 text-center'>
-                      <Button
-                        as={Link}
-                        href={`/posts/${post.id}`}
-                        size='sm'
-                        color='primary'
-                        variant='flat'
-                        className='flex-1 font-medium'
+              return (
+                <Card
+                  key={`saved-post-${post.id}-${index}`}
+                  className={`flex h-full flex-col border-2 p-2 ${
+                    isUserPost ? 'border-green-100 bg-green-50/30' : 'border-blue-100 bg-blue-50/30'
+                  }`}
+                  shadow='none'
+                >
+                  <CardHeader className='pb-2'>
+                    <div className='flex w-full items-start justify-between gap-3'>
+                      <h3 className='line-clamp-2 flex-1 text-lg font-semibold text-gray-900'>{post.title}</h3>
+                      <span
+                        className={`shrink-0 rounded-full px-2 py-1 text-xs ${
+                          isUserPost ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                        }`}
                       >
-                        View
-                      </Button>
+                        {isUserPost ? 'Your Post' : 'Saved'}
+                      </span>
                     </div>
-                    <div className='flex gap-2'>
-                      <Button
-                        size='sm'
-                        color='warning'
-                        variant='flat'
-                        className='flex-1 font-medium'
-                        onPress={() => handleEdit(post)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        size='sm'
-                        color='danger'
-                        variant='flat'
-                        className='flex-1 font-medium'
-                        onPress={() => handleDelete(post.id)}
-                        isLoading={deletePostMutation.isPending}
-                      >
-                        Delete
-                      </Button>
+                  </CardHeader>
+
+                  <CardBody className='flex flex-1 flex-col pt-0'>
+                    <p className='mb-4 line-clamp-3 text-sm leading-relaxed text-gray-600'>{post.body}</p>
+
+                    <div className='mt-auto space-y-2 border-t border-gray-100 pt-2'>
+                      <div className='flex gap-2 text-center'>
+                        <Button
+                          as={Link}
+                          href={`/posts/${post.id}`}
+                          size='sm'
+                          color='primary'
+                          variant='flat'
+                          className='flex-1 font-medium'
+                        >
+                          View
+                        </Button>
+                      </div>
+
+                      {post.source === 'user' || post.id < 0 ? (
+                        <div className='flex gap-2'>
+                          <Button
+                            size='sm'
+                            color='warning'
+                            variant='flat'
+                            className='flex-1 font-medium'
+                            onPress={() => handleEdit(post)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size='sm'
+                            color='danger'
+                            variant='flat'
+                            className='flex-1 font-medium'
+                            onPress={() => handleDelete(post)}
+                            isLoading={deletePostMutation.isPending}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className='flex gap-2'>
+                          <Button
+                            size='sm'
+                            color='danger'
+                            variant='flat'
+                            className='flex-1 font-medium'
+                            onPress={() => handleDelete(post)}
+                          >
+                            Remove from Saved
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </CardBody>
-              </Card>
-            ))}
+                  </CardBody>
+                </Card>
+              )
+            })}
           </div>
         )}
 

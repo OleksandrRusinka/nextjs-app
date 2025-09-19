@@ -15,7 +15,7 @@ export const usePosts = (): UseQueryResult<Post[], Error> => {
   const savedPosts = usePostsStore((state) => state.savedPosts)
 
   return useQuery({
-    queryKey: [...POSTS_QUERY_KEYS.list(), savedPosts.length, savedPosts.map((p: Post) => p.id).join(',')],
+    queryKey: POSTS_QUERY_KEYS.list(),
     queryFn: async (): Promise<Post[]> => {
       const apiPosts = await postsApi.fetchPosts()
 
@@ -77,9 +77,13 @@ export const useCreatePost = () => {
       addSavedPost(newPost)
       return newPost
     },
-    onSuccess: () => {
+    onSuccess: (newPost) => {
+      queryClient.setQueryData(POSTS_QUERY_KEYS.list(), (old: Post[] | undefined) => {
+        if (!old) return [newPost]
+        return [newPost, ...old]
+      })
       queryClient.invalidateQueries({
-        queryKey: POSTS_QUERY_KEYS.root,
+        queryKey: ['saved-posts'],
       })
     },
     onError: (error) => {
@@ -97,9 +101,16 @@ export const useUpdatePost = () => {
       updateSavedPost(data.id, { title: data.title, body: data.body })
       return data
     },
-    onSuccess: () => {
+    onSuccess: (updatedData) => {
+      queryClient.setQueryData(POSTS_QUERY_KEYS.detail(updatedData.id), (old: Post | undefined) => {
+        if (!old) return old
+        return { ...old, title: updatedData.title, body: updatedData.body }
+      })
       queryClient.invalidateQueries({
-        queryKey: POSTS_QUERY_KEYS.root,
+        queryKey: POSTS_QUERY_KEYS.list(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['saved-posts'],
       })
     },
   })
@@ -114,9 +125,16 @@ export const useDeletePost = () => {
       removeSavedPost(id)
       return id
     },
-    onSuccess: () => {
+    onSuccess: (deletedId) => {
+      queryClient.setQueryData(POSTS_QUERY_KEYS.list(), (old: Post[] | undefined) => {
+        if (!old) return old
+        return old.filter((post) => post.id !== deletedId)
+      })
+      queryClient.removeQueries({
+        queryKey: POSTS_QUERY_KEYS.detail(deletedId),
+      })
       queryClient.invalidateQueries({
-        queryKey: POSTS_QUERY_KEYS.root,
+        queryKey: ['saved-posts'],
       })
     },
   })
@@ -126,8 +144,9 @@ export const useSavedPosts = (): UseQueryResult<Post[], Error> => {
   const savedPosts = usePostsStore((state) => state.savedPosts)
 
   return useQuery({
-    queryKey: ['saved-posts', savedPosts.map((p: Post) => p.id).join(',')],
+    queryKey: ['saved-posts'],
     queryFn: () => Promise.resolve(savedPosts),
-    staleTime: Infinity,
+    staleTime: 0,
+    gcTime: 0,
   })
 }

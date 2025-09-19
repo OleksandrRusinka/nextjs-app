@@ -10,7 +10,8 @@ export const postsApi = {
       throw new Error(`Failed to fetch posts: ${response.status}`)
     }
 
-    return response.json()
+    const posts = await response.json()
+    return posts.map((post: Post) => ({ ...post, source: 'fakejson' as const }))
   },
 
   fetchPostById: async (id: string | number): Promise<Post> => {
@@ -20,7 +21,8 @@ export const postsApi = {
       throw new Error(`Failed to fetch post ${id}: ${response.status}`)
     }
 
-    return response.json()
+    const post = await response.json()
+    return { ...post, source: 'fakejson' as const }
   },
 
   createPost: async (data: CreatePostDto): Promise<Post> => {
@@ -29,6 +31,7 @@ export const postsApi = {
       title: data.title,
       body: data.body,
       userId: data.userId,
+      source: 'user',
     }
 
     return Promise.resolve(newPost)
@@ -61,6 +64,7 @@ export const postsApi = {
       title: data.title,
       body: data.body,
       userId: 1,
+      source: 'user',
     })
   },
 }

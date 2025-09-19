@@ -34,14 +34,25 @@ const PostDetailModule: FC<PostDetailModuleProps> = ({ postId }) => {
 
   if (error || !post) notFound()
 
-  const isUserPost = post.id < 0
+  const isUserPost = post.source === 'user' || post.id < 0
+  const isFakeJsonPost = post.source === 'fakejson' || post.id > 0
   const isSaved = savedPosts.some((p) => p.id === post.id)
 
   const handleToggleSave = () => (isSaved ? removeSavedPost(post.id) : addSavedPost(post))
+
   const handleDeletePost = async () => {
-    if (!window.confirm('Are you sure you want to delete this post?')) return
+    const confirmMessage = isFakeJsonPost
+      ? 'Are you sure you want to remove this post from saved posts?'
+      : 'Are you sure you want to delete this post?'
+
+    if (!window.confirm(confirmMessage)) return
+
     try {
-      await deletePostMutation.mutateAsync(post.id)
+      if (isFakeJsonPost) {
+        removeSavedPost(post.id)
+      } else {
+        await deletePostMutation.mutateAsync(post.id)
+      }
       window.location.href = '/'
     } catch (err) {
       console.error('Failed to delete post:', err)
@@ -75,18 +86,29 @@ const PostDetailModule: FC<PostDetailModuleProps> = ({ postId }) => {
         </Card>
 
         <div className='flex flex-col items-center gap-3 border-t border-gray-200 pt-6'>
-          <div className='flex flex-wrap justify-between gap-3'>
-            {!isUserPost && (
-              <Button
-                color={isSaved ? 'danger' : 'default'}
-                variant='flat'
-                size='sm'
-                onPress={handleToggleSave}
-                className='flex items-center gap-2 font-medium'
-              >
-                <Heart className={`h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
-                {isSaved ? 'Saved' : 'Save'}
-              </Button>
+          <div className='flex flex-wrap justify-center gap-3'>
+            {isFakeJsonPost && (
+              <>
+                <Button
+                  color={isSaved ? 'danger' : 'default'}
+                  variant='flat'
+                  size='sm'
+                  onPress={handleToggleSave}
+                  className='flex items-center gap-2 font-medium'
+                >
+                  <Heart className={`h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
+                  {isSaved ? 'Saved' : 'Save'}
+                </Button>
+                <Button
+                  color='danger'
+                  variant='flat'
+                  size='sm'
+                  onPress={handleDeletePost}
+                  className='flex items-center gap-2 font-medium'
+                >
+                  <Trash2 className='h-4 w-4' /> Remove from Saved
+                </Button>
+              </>
             )}
 
             {isUserPost && (

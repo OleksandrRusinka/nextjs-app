@@ -23,7 +23,8 @@ const PostCard: FC<PostCardProps> = ({ post, onEdit }) => {
   const addSavedPost = usePostsStore((state) => state.addSavedPost)
   const removeSavedPost = usePostsStore((state) => state.removeSavedPost)
 
-  const isUserPost = post.id < 0
+  const isUserPost = post.source === 'user' || post.id < 0
+  const isFakeJsonPost = post.source === 'fakejson' || post.id > 0
   const isSaved = savedPosts.some((p) => p.id === post.id)
 
   const handleToggleSave = () => {
@@ -35,9 +36,17 @@ const PostCard: FC<PostCardProps> = ({ post, onEdit }) => {
   }
 
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this post?')) {
+    const confirmMessage = isFakeJsonPost
+      ? 'Are you sure you want to remove this post from saved posts?'
+      : 'Are you sure you want to delete this post?'
+
+    if (window.confirm(confirmMessage)) {
       try {
-        await deletePostMutation.mutateAsync(post.id)
+        if (isFakeJsonPost) {
+          removeSavedPost(post.id)
+        } else {
+          await deletePostMutation.mutateAsync(post.id)
+        }
       } catch (error) {
         console.error('Failed to delete post:', error)
       }
@@ -81,18 +90,20 @@ const PostCard: FC<PostCardProps> = ({ post, onEdit }) => {
             </Button>
 
             <div className='flex items-center gap-2'>
-              {!isUserPost && (
-                <Button
-                  isIconOnly
-                  size='sm'
-                  variant='flat'
-                  color={isSaved ? 'danger' : 'default'}
-                  className='h-8 min-w-8'
-                  onPress={handleToggleSave}
-                  title={isSaved ? 'Remove from saved' : 'Save post'}
-                >
-                  <Heart className={`h-3 w-3 ${isSaved ? 'fill-current' : ''}`} />
-                </Button>
+              {isFakeJsonPost && (
+                <>
+                  <Button
+                    isIconOnly
+                    size='sm'
+                    variant='flat'
+                    color={isSaved ? 'danger' : 'default'}
+                    className='h-8 min-w-8'
+                    onPress={handleToggleSave}
+                    title={isSaved ? 'Remove from saved' : 'Save post'}
+                  >
+                    <Heart className={`h-3 w-3 ${isSaved ? 'fill-current' : ''}`} />
+                  </Button>
+                </>
               )}
 
               {isUserPost && (
