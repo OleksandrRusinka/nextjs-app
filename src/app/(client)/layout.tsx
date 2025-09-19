@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 import '@/config/styles/globals.css'
 import { LayoutModule } from '@/modules/layout'
+import { AnalyticTrackerComponent } from '@/components/analytic-tracker'
 
 import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query'
 import Providers from './(app)/providers'
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body suppressHydrationWarning>
         <Providers>
           <HydrationBoundary state={dehydrate(queryClient)}>
+            <AnalyticTrackerComponent />
             <LayoutModule>{children}</LayoutModule>
           </HydrationBoundary>
         </Providers>

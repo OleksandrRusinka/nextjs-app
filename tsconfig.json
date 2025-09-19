@@ -23,7 +23,8 @@
       "@/features/*": ["./src/app/(client)/features/*"],
       "@/entities/*": ["./src/app/(client)/entities/*"],
       "@/shared/*": ["./src/app/(client)/shared/*"],
-      "@/config/*": ["./src/config/*"]
+      "@/config/*": ["./src/config/*"],
+      "@/components/*": ["./src/app/(client)/components/*"],
     },
     "target": "ES2022"
   },

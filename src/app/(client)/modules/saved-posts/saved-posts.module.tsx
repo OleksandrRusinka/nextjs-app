@@ -4,17 +4,18 @@ import { Button, Card, CardBody, CardHeader, useDisclosure } from '@heroui/react
 import Link from 'next/link'
 import { FC, useState } from 'react'
 
-import { useDeletePost, useSavedPosts } from '@/entities/api/posts'
+import { useDeletePost } from '@/entities/api/posts'
 import type { Post } from '@/entities/models'
 import { ContainerComponent } from '@/shared/ui'
 import { EditPostModal } from '../../features'
+import { usePostsStore } from '@/shared/store'
 
 // interface
 interface SavedPostsModuleProps {}
 
 // component
 const SavedPostsModule: FC<SavedPostsModuleProps> = () => {
-  const { data: savedPosts = [] } = useSavedPosts()
+const savedPosts = usePostsStore((state) => state.savedPosts)
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
   const [editingPost, setEditingPost] = useState<Post | null>(null)
 
